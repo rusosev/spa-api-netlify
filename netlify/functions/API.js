@@ -1,18 +1,17 @@
 // Usamos 'require' para importar las dependencias.
 const { GoogleGenerativeAI } = require("@google/genai");
 
-// Definimos la clave de la API desde las variables de entorno de Netlify.
-const apiKey = process.env.GEMINI_API_KEY || "";
-let model;
-
 // Creamos un handler asíncrono, que es el formato nativo de Netlify para funciones.
 // El 'event' contiene toda la información de la petición, incluyendo los parámetros de la URL.
 exports.handler = async (event) => {
+  // Definimos la clave de la API desde las variables de entorno de Netlify.
+  const apiKey = process.env.GEMINI_API_KEY;
+
   // Verificamos que la clave de la API esté configurada.
   if (!apiKey) {
     return {
       statusCode: 500,
-      body: "Error: La clave de la API no está configurada."
+      body: "Error: La clave de la API no está configurada. Por favor, añádela a las variables de entorno de Netlify."
     };
   }
 
@@ -28,16 +27,8 @@ exports.handler = async (event) => {
   }
 
   // Inicializamos el modelo de IA.
-  try {
-    const api = new GoogleGenerativeAI(apiKey);
-    model = api.getGenerativeModel({ model: "gemini-pro" });
-  } catch (error) {
-    console.error("Error al inicializar el modelo:", error);
-    return {
-      statusCode: 500,
-      body: "Error interno del servidor al inicializar el modelo."
-    };
-  }
+  const api = new GoogleGenerativeAI(apiKey);
+  const model = api.getGenerativeModel({ model: "gemini-pro" });
 
   // Hacemos la petición a Gemini.
   try {
@@ -60,7 +51,10 @@ exports.handler = async (event) => {
     console.error("Error al generar contenido:", error);
     return {
       statusCode: 500,
-      body: "Error interno del servidor al generar contenido."
+      body: JSON.stringify({
+        success: false,
+        error: "Error interno del servidor al generar contenido. Revisa los logs de Netlify para más detalles."
+      })
     };
   }
 };

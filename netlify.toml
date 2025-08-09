@@ -2,11 +2,8 @@
 [build]
   # El comando que se ejecuta para instalar las dependencias.
   command = "npm install"
-  # NOTA: Hemos eliminado la línea `publish = "public"` porque tu proyecto no
-  # tiene una página web, solo una función de la API.
 
 # Esta sección es crucial para configurar las funciones de Netlify.
 [functions]
   # Le dice a Netlify en qué carpeta buscar tus funciones.
-  # Tu función API.js está dentro de "netlify/functions".
   directory = "netlify/functions"
