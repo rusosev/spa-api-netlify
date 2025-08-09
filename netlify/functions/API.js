@@ -11,7 +11,10 @@ exports.handler = async (event) => {
   if (!apiKey) {
     return {
       statusCode: 500,
-      body: "Error: La clave de la API no está configurada. Por favor, añádela a las variables de entorno de Netlify."
+      body: JSON.stringify({
+        success: false,
+        error: "Error: La clave de la API no está configurada. Por favor, añádela a las variables de entorno de Netlify."
+      })
     };
   }
 
@@ -22,7 +25,10 @@ exports.handler = async (event) => {
   if (!prompt) {
     return {
       statusCode: 400,
-      body: "Error: Falta el parámetro 'prompt'. Ejemplo: ?prompt=Hola mundo"
+      body: JSON.stringify({
+        success: false,
+        error: "Error: Falta el parámetro 'prompt'. Ejemplo: ?prompt=Hola mundo"
+      })
     };
   }
 
@@ -53,7 +59,7 @@ exports.handler = async (event) => {
       statusCode: 500,
       body: JSON.stringify({
         success: false,
-        error: "Error interno del servidor al generar contenido. Revisa los logs de Netlify para más detalles."
+        error: `Error interno del servidor. Mensaje de la API de Gemini: ${error.message}`
       })
     };
   }
