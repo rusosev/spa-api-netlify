@@ -11,5 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.15.0"
-  }
+  },
+  "type": "module"
 }

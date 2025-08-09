@@ -1,9 +1,8 @@
-// Usamos 'require' para importar las dependencias.
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+// Usamos 'import' para importar las dependencias, la sintaxis moderna.
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Creamos un handler asíncrono, que es el formato nativo de Netlify para funciones.
-// El 'event' contiene toda la información de la petición, incluyendo los parámetros de la URL.
-exports.handler = async (event) => {
+// Creamos un handler asíncrono y lo exportamos directamente.
+export const handler = async (event) => {
   // Definimos la clave de la API desde las variables de entorno de Netlify.
   const apiKey = process.env.GEMINI_API_KEY;
 
