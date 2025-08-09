@@ -33,7 +33,8 @@ export const handler = async (event) => {
 
   // Inicializamos el modelo de IA.
   const api = new GoogleGenerativeAI(apiKey);
-  const model = api.getGenerativeModel({ model: "gemini-pro" });
+  // *** ÚNICO CAMBIO: cambia el nombre del modelo a uno válido ***
+  const model = api.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   // Hacemos la petición a Gemini.
   try {
