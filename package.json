@@ -1,7 +1,8 @@
- "name": "spa-api-netlify",
+{
+  "name": "spa-api-netlify",
   "version": "1.0.0",
-  "description": "API para el SPA de AETOS STRATEGY, desplegada en Netlify Functions.",
-  "main": "netlify/functions/api.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -9,9 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google/generativeai": "^0.15.0",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
+    "express": "^5.1.0",
     "serverless-http": "^3.2.0"
   }
 }
