@@ -1,11 +1,9 @@
 {
-  "name": "spa-api-netlify",
+  "name": "gemini-api-function",
   "version": "1.0.0",
-  "description": "API de prueba para un proyecto SPA",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "description": "Una función de Netlify para la API de Gemini",
+  "main": "API.js",
+  "dependencies": {
+    "@google/generativeai": "^0.15.0"
+  }
 }

@@ -1,4 +1,5 @@
-# Esta sección es crucial para configurar las funciones de Netlify.
+[build]
+  command = "npm install"
+
 [functions]
-  # Le dice a Netlify en qué carpeta buscar tus funciones.
   directory = "netlify/functions"
