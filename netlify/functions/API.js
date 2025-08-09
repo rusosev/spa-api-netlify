@@ -1,48 +1,41 @@
-// Importa las librerías necesarias.
-const express = require('express');
-const serverless = require('serverless-http');
-const cors = require('cors');
-// Importa la librería de Google Gemini.
-const { GoogleGenAI } = require('@google/genai');
+// Importamos la clase GenerativeModel de la nueva dependencia @google/genai.
+import { GoogleGenerativeAI } from "@google/genai";
 
-// Inicializa la aplicación Express.
-const app = express();
+// Inicializa la variable de la API key. Si no se encuentra, se asigna una cadena vacía.
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+let api = null;
+let model = null;
 
-// Middleware para procesar JSON y permitir CORS.
-app.use(express.json());
-app.use(cors());
+// Esta función inicializa el modelo de IA.
+// Es importante llamar a esta función antes de cualquier otra interacción con la API.
+export async function initializeModel() {
+  if (apiKey === "") {
+    console.error("VITE_GEMINI_API_KEY no está configurada.");
+    return;
+  }
+  // Se inicializa el objeto GoogleGenerativeAI con la clave de la API.
+  api = new GoogleGenerativeAI(apiKey);
+  // Se obtiene el modelo específico a usar (gemini-pro).
+  model = api.getGenerativeModel({ model: "gemini-pro" });
+}
 
-// --- ENDPOINT PRINCIPAL DEL SPA ---
-app.post('/api', async (req, res) => {
-    try {
-        // La API recibe el prompt de Make.com.
-        const { promptMaster } = req.body;
+// Esta función envía el prompt al modelo de IA y maneja la respuesta.
+export async function generateContent(prompt) {
+  if (!model) {
+    console.error("El modelo de IA no ha sido inicializado. Por favor, llama a initializeModel() primero.");
+    return null;
+  }
 
-        // Conexión segura con Gemini usando variables de entorno de Netlify.
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-        // Selecciona el modelo de Gemini (versión 2.0 Flash).
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-latest" });
-
-        // Envía el prompt a Gemini y espera la respuesta.
-        const result = await model.generateContent(promptMaster);
-        const response = await result.response;
-        const iaOutput = response.text();
-
-        // Prepara el resultado para enviarlo de vuelta a Make.com.
-        const iaResult = {
-            status: 'success',
-            output: iaOutput,
-        };
-
-        // Devuelve el resultado a Make.com.
-        res.status(200).json(iaResult);
-
-    } catch (error) {
-        console.error('Error en el endpoint /api:', error);
-        res.status(500).json({ error: 'Ha ocurrido un error en el servidor.', details: error.message });
-    }
-});
-
-// Exporta la función para que Netlify la pueda usar.
-module.exports.handler = serverless(app);
+  try {
+    // Se envía el prompt al modelo.
+    const result = await model.generateContent(prompt);
+    // Se extrae la respuesta del resultado.
+    const response = await result.response;
+    // Se obtiene el texto de la respuesta.
+    const text = response.text();
+    return text;
+  } catch (error) {
+    console.error("Error al generar contenido:", error);
+    return null;
+  }
+}
