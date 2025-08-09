@@ -30,9 +30,9 @@ async function initializeModel() {
 // Inicializa el modelo al inicio de la aplicación.
 initializeModel();
 
-// Definimos el endpoint de la API para recibir peticiones GET.
-// La URL completa será https://[tu-sitio].netlify.app/.netlify/functions/api
-app.get("/api", async (req, res) => {
+// Definimos el endpoint de la API para recibir peticiones GET en la ruta base de la función.
+// La URL completa será https://[tu-sitio].netlify.app/.netlify/functions/API
+app.get("/", async (req, res) => {
   if (!model) {
     res.status(500).send("El modelo de IA no ha sido inicializado. Por favor, revisa la configuración de la API key.");
     return;
