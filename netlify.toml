@@ -2,9 +2,8 @@
 [build]
   # El comando que se ejecuta para instalar las dependencias.
   command = "npm install"
-  # Directorio donde Netlify buscará los archivos estáticos de tu sitio (si los tuvieras).
-  # Incluso si solo usas funciones, es buena práctica definir uno.
-  publish = "public"
+  # NOTA: Hemos eliminado la línea `publish = "public"` porque tu proyecto no
+  # tiene una página web, solo una función de la API.
 
 # Esta sección es crucial para configurar las funciones de Netlify.
 [functions]
