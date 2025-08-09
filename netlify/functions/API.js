@@ -1,41 +1,70 @@
-// Importamos la clase GenerativeModel de la nueva dependencia @google/genai.
-import { GoogleGenerativeAI } from "@google/genai";
+// Usamos 'require' para importar las dependencias, que es el formato que Netlify espera.
+const { GoogleGenerativeAI } = require("@google/genai");
+const express = require("express");
+const serverless = require("serverless-http");
+const cors = require("cors");
 
-// Inicializa la variable de la API key. Si no se encuentra, se asigna una cadena vacía.
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+// Creamos una nueva aplicación de Express.
+const app = express();
+
+// Usamos el middleware CORS para permitir peticiones desde otros dominios.
+app.use(cors());
+
+// Definimos la variable para la clave de la API, obtenida de las variables de entorno de Netlify.
+// Si no existe, se usa una cadena vacía.
+const apiKey = process.env.GEMINI_API_KEY || "";
+
+// Inicializamos el modelo de IA.
 let api = null;
 let model = null;
 
-// Esta función inicializa el modelo de IA.
-// Es importante llamar a esta función antes de cualquier otra interacción con la API.
-export async function initializeModel() {
+async function initializeModel() {
   if (apiKey === "") {
-    console.error("VITE_GEMINI_API_KEY no está configurada.");
+    console.error("GEMINI_API_KEY no está configurada.");
     return;
   }
-  // Se inicializa el objeto GoogleGenerativeAI con la clave de la API.
   api = new GoogleGenerativeAI(apiKey);
-  // Se obtiene el modelo específico a usar (gemini-pro).
   model = api.getGenerativeModel({ model: "gemini-pro" });
 }
 
-// Esta función envía el prompt al modelo de IA y maneja la respuesta.
-export async function generateContent(prompt) {
+// Inicializa el modelo al inicio de la aplicación.
+initializeModel();
+
+// Definimos el endpoint de la API para recibir peticiones GET.
+// La URL completa será https://[tu-sitio].netlify.app/.netlify/functions/api
+app.get("/api", async (req, res) => {
   if (!model) {
-    console.error("El modelo de IA no ha sido inicializado. Por favor, llama a initializeModel() primero.");
-    return null;
+    res.status(500).send("El modelo de IA no ha sido inicializado. Por favor, revisa la configuración de la API key.");
+    return;
+  }
+
+  // Obtenemos el prompt de la URL de la petición.
+  const prompt = req.query.prompt;
+
+  if (!prompt) {
+    res.status(400).send("Falta el parámetro 'prompt'. Ejemplo: /api?prompt=Hola mundo");
+    return;
   }
 
   try {
-    // Se envía el prompt al modelo.
+    // Enviamos el prompt al modelo de IA.
     const result = await model.generateContent(prompt);
-    // Se extrae la respuesta del resultado.
     const response = await result.response;
-    // Se obtiene el texto de la respuesta.
     const text = response.text();
-    return text;
+
+    // Enviamos la respuesta del modelo como un JSON.
+    res.json({
+      success: true,
+      data: text
+    });
   } catch (error) {
     console.error("Error al generar contenido:", error);
-    return null;
+    res.status(500).json({
+      success: false,
+      error: "Error interno del servidor al generar contenido."
+    });
   }
-}
+});
+
+// Exportamos la función de Express para que Netlify la use.
+exports.handler = serverless(app);
