@@ -3,7 +3,7 @@ const express = require('express');
 const serverless = require('serverless-http');
 const cors = require('cors');
 // Importa la librería de Google Gemini.
-const { GoogleGenerativeAI } = require('@google/generativeai');
+const { GoogleGenAI } = require('@google/genai');
 
 // Inicializa la aplicación Express.
 const app = express();
