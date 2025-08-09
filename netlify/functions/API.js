@@ -1,70 +1,66 @@
-// Usamos 'require' para importar las dependencias, que es el formato que Netlify espera.
+// Usamos 'require' para importar las dependencias.
 const { GoogleGenerativeAI } = require("@google/genai");
-const express = require("express");
-const serverless = require("serverless-http");
-const cors = require("cors");
 
-// Creamos una nueva aplicación de Express.
-const app = express();
-
-// Usamos el middleware CORS para permitir peticiones desde otros dominios.
-app.use(cors());
-
-// Definimos la variable para la clave de la API, obtenida de las variables de entorno de Netlify.
-// Si no existe, se usa una cadena vacía.
+// Definimos la clave de la API desde las variables de entorno de Netlify.
 const apiKey = process.env.GEMINI_API_KEY || "";
+let model;
 
-// Inicializamos el modelo de IA.
-let api = null;
-let model = null;
-
-async function initializeModel() {
-  if (apiKey === "") {
-    console.error("GEMINI_API_KEY no está configurada.");
-    return;
-  }
-  api = new GoogleGenerativeAI(apiKey);
-  model = api.getGenerativeModel({ model: "gemini-pro" });
-}
-
-// Inicializa el modelo al inicio de la aplicación.
-initializeModel();
-
-// Definimos el endpoint de la API para recibir peticiones GET en la ruta base de la función.
-// La URL completa será https://[tu-sitio].netlify.app/.netlify/functions/API
-app.get("/", async (req, res) => {
-  if (!model) {
-    res.status(500).send("El modelo de IA no ha sido inicializado. Por favor, revisa la configuración de la API key.");
-    return;
+// Creamos un handler asíncrono, que es el formato nativo de Netlify para funciones.
+// El 'event' contiene toda la información de la petición, incluyendo los parámetros de la URL.
+exports.handler = async (event) => {
+  // Verificamos que la clave de la API esté configurada.
+  if (!apiKey) {
+    return {
+      statusCode: 500,
+      body: "Error: La clave de la API no está configurada."
+    };
   }
 
-  // Obtenemos el prompt de la URL de la petición.
-  const prompt = req.query.prompt;
+  // Obtenemos el prompt de los parámetros de la URL.
+  const prompt = event.queryStringParameters.prompt;
 
+  // Si no hay prompt, devolvemos un error 400.
   if (!prompt) {
-    res.status(400).send("Falta el parámetro 'prompt'. Ejemplo: /api?prompt=Hola mundo");
-    return;
+    return {
+      statusCode: 400,
+      body: "Error: Falta el parámetro 'prompt'. Ejemplo: ?prompt=Hola mundo"
+    };
   }
 
+  // Inicializamos el modelo de IA.
   try {
-    // Enviamos el prompt al modelo de IA.
+    const api = new GoogleGenerativeAI(apiKey);
+    model = api.getGenerativeModel({ model: "gemini-pro" });
+  } catch (error) {
+    console.error("Error al inicializar el modelo:", error);
+    return {
+      statusCode: 500,
+      body: "Error interno del servidor al inicializar el modelo."
+    };
+  }
+
+  // Hacemos la petición a Gemini.
+  try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
 
-    // Enviamos la respuesta del modelo como un JSON.
-    res.json({
-      success: true,
-      data: text
-    });
+    // Devolvemos la respuesta exitosa en formato JSON.
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        success: true,
+        data: text
+      })
+    };
   } catch (error) {
     console.error("Error al generar contenido:", error);
-    res.status(500).json({
-      success: false,
-      error: "Error interno del servidor al generar contenido."
-    });
+    return {
+      statusCode: 500,
+      body: "Error interno del servidor al generar contenido."
+    };
   }
-});
-
-// Exportamos la función de Express para que Netlify la use.
-exports.handler = serverless(app);
+};
