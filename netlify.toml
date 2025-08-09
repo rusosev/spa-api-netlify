@@ -1,8 +1,3 @@
-# Esta sección configura cómo Netlify debe construir tu sitio.
-[build]
-  # El comando que se ejecuta para instalar las dependencias.
-  command = "npm install"
-
 # Esta sección es crucial para configurar las funciones de Netlify.
 [functions]
   # Le dice a Netlify en qué carpeta buscar tus funciones.
