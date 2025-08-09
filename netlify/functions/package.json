@@ -1,0 +1,9 @@
+{
+  "name": "gemini-api-function",
+  "version": "1.0.0",
+  "description": "Una función de Netlify para la API de Gemini",
+  "main": "API.js",
+  "dependencies": {
+    "@google/generativeai": "^0.15.0"
+  }
+}
