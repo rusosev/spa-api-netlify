@@ -33,7 +33,6 @@ export const handler = async (event) => {
 
   // Inicializamos el modelo de IA.
   const api = new GoogleGenerativeAI(apiKey);
-  // *** ÚNICO CAMBIO: cambia el nombre del modelo a uno válido ***
   const model = api.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   // Hacemos la petición a Gemini.
@@ -46,7 +45,8 @@ export const handler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Content-Type": "application/json"
+        // *** ÚNICO CAMBIO: añadimos la codificación UTF-8 aquí ***
+        "Content-Type": "application/json; charset=UTF-8"
       },
       body: JSON.stringify({
         success: true,
