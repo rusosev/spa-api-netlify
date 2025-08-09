@@ -1,5 +1,5 @@
 // Usamos 'require' para importar las dependencias.
-const { GoogleGenerativeAI } = require("@google/genai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Creamos un handler asíncrono, que es el formato nativo de Netlify para funciones.
 // El 'event' contiene toda la información de la petición, incluyendo los parámetros de la URL.
