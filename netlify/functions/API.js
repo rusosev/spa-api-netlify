@@ -17,8 +17,33 @@ export const handler = async (event) => {
     };
   }
 
-  // Obtenemos el prompt de los parámetros de la URL.
-  const prompt = event.queryStringParameters.prompt;
+  // Verificamos que la solicitud sea un POST y que tenga un cuerpo.
+  if (event.httpMethod !== "POST" || !event.body) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        success: false,
+        error: "Error: El método de la solicitud debe ser POST y debe contener un cuerpo con los datos."
+      })
+    };
+  }
+
+  // Parseamos el cuerpo JSON de la solicitud.
+  let requestBody;
+  try {
+    requestBody = JSON.parse(event.body);
+  } catch (parseError) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        success: false,
+        error: "Error: El cuerpo de la solicitud no es un JSON válido."
+      })
+    };
+  }
+  
+  // Obtenemos el prompt del cuerpo JSON. Ahora esperamos la clave "prompt".
+  const prompt = requestBody.prompt;
 
   // Si no hay prompt, devolvemos un error 400.
   if (!prompt) {
@@ -26,7 +51,7 @@ export const handler = async (event) => {
       statusCode: 400,
       body: JSON.stringify({
         success: false,
-        error: "Error: Falta el parámetro 'prompt'. Ejemplo: ?prompt=Hola mundo"
+        error: "Error: Falta el campo 'prompt' en el cuerpo JSON de la solicitud."
       })
     };
   }
@@ -45,7 +70,6 @@ export const handler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        // *** ÚNICO CAMBIO: añadimos la codificación UTF-8 aquí ***
         "Content-Type": "application/json; charset=UTF-8"
       },
       body: JSON.stringify({
